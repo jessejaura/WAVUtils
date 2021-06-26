@@ -100,7 +100,7 @@ namespace WAVUtils.Controllers
             return normalizedSamples;
         }
 
-        public static string WAVEToString(WAVE wave)
+        public static string WAVEToString(WAVE wave, bool printSamples)
         {
             string output = "";
             
@@ -122,7 +122,37 @@ namespace WAVUtils.Controllers
             
             // Append data chunk
             output += $"data Chunk\nSubchunk2ID: {wave.subchunk2ID}\n" +
-                      $"Subchunk2Size: {wave.subchunk2Size}";
+                      $"Subchunk2Size: {wave.subchunk2Size}\n";
+
+            if (printSamples)
+            {
+                output += "Samples:\n";
+                int numSamples = wave.subchunk2Size / wave.fmt.numChannels / (wave.fmt.bitsPerSample / 8);
+                for (int channel = 0; channel < wave.fmt.numChannels; channel++)
+                {
+                    output += $"Channel {channel}: [";
+                    for (int sample = 0; sample < numSamples; sample++)
+                    {
+                        output += $"{wave.samplesByChannel[channel, sample]},\n";
+
+                    }
+
+                    output = output.Remove(output.Length - 2) + "]\n";
+                }
+                
+                output += "\nNormalizedSamples:\n";
+                for (int channel = 0; channel < wave.fmt.numChannels; channel++)
+                {
+                    output += $"Channel {channel}: [";
+                    for (int sample = 0; sample < numSamples; sample++)
+                    {
+                        output += $"{wave.normalizedSamplesByChannel[channel, sample]},\n";
+
+                    }
+
+                    output = output.Remove(output.Length - 2) + "]\n";
+                }
+            }
 
             return output;
         }
